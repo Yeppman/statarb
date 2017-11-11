@@ -26,13 +26,14 @@ def Welcome():
 
 
 def run():
-	print('Trading ', pairs)
+	
 	risk = Risk()
 	pos = Position()
 	bfxTrade = BitfinexTrade()
 	pairs = bfxTrade.pairs
 	bfxTrade.prepare_close_dataframe()
 	stat = Stat()
+	print('Trading ', pairs)
 	print('Starting event loop')
 	while True:
 		
