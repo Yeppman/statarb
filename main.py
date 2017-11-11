@@ -7,9 +7,29 @@ from Risk import Risk
 from Position import Position
 import time
 import threading
-port = os.getenv('PORT', '5000')
+import socketio
+import eventlet
+import eventlet.wsgi
+from flask import Flask, jsonify, render_template
+
+sio = socketio.Server()
+app = Flask(__name__)
+
+bfxTrade = BitfinexTrade()
+pairs = bfxTrade.pairs
+bfxTrade.prepare_close_dataframe()
+stat = Stat()
 
 
+
+
+@app.route('/')
+def Welcome():
+    return render_template('index.html')
+
+print('Trading ', pairs)
+risk = Risk()
+pos = Position()
 
 def run():
 	print('Starting event loop')
@@ -81,20 +101,13 @@ def run():
 					print('P/L ', pl*100,' %')
 					bfxTrade.opened_position = False
 		time.sleep(1800)
-					
+
+threading.Thread(target=run, args=()).start()
+
+port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
-	bfxTrade = BitfinexTrade()
-	pairs = bfxTrade.pairs
-
-	bfxTrade.prepare_close_dataframe()
-	stat = Stat()
-	
-	
-	print('Trading ', pairs)
-	risk = Risk()
-	pos = Position()
-
-	threading.Thread(target=run, args=()).start()
+	app = socketio.Middleware(sio, app)
+	eventlet.wsgi.server(eventlet.listen(('', int(port))), app)
 	
 
 
