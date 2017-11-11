@@ -6,21 +6,13 @@ from Stat import Stat
 from Risk import Risk
 from Position import Position
 import time
+import threading
 port = os.getenv('PORT', '5000')
 
 
-if __name__ == "__main__":
-	bfxTrade = BitfinexTrade()
-	pairs = bfxTrade.pairs
 
-	bfxTrade.prepare_close_dataframe()
-	stat = Stat()
-	
-	
-	print('Trading ', pairs)
-	risk = Risk()
-	pos = Position()
-
+def run():
+	print('Starting event loop')
 	while True:
 		
 		bfxTrade.get_tickers()
@@ -90,7 +82,19 @@ if __name__ == "__main__":
 					bfxTrade.opened_position = False
 		time.sleep(1800)
 					
+if __name__ == "__main__":
+	bfxTrade = BitfinexTrade()
+	pairs = bfxTrade.pairs
 
+	bfxTrade.prepare_close_dataframe()
+	stat = Stat()
+	
+	
+	print('Trading ', pairs)
+	risk = Risk()
+	pos = Position()
+
+	threading.Thread(target=run, args=()).start()
 	
 
 
