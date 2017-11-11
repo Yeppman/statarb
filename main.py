@@ -15,10 +15,7 @@ from flask import Flask, jsonify, render_template
 sio = socketio.Server()
 app = Flask(__name__)
 
-bfxTrade = BitfinexTrade()
-pairs = bfxTrade.pairs
-bfxTrade.prepare_close_dataframe()
-stat = Stat()
+
 
 
 
@@ -27,11 +24,15 @@ stat = Stat()
 def Welcome():
     return render_template('index.html')
 
-print('Trading ', pairs)
-risk = Risk()
-pos = Position()
 
 def run():
+	print('Trading ', pairs)
+	risk = Risk()
+	pos = Position()
+	bfxTrade = BitfinexTrade()
+	pairs = bfxTrade.pairs
+	bfxTrade.prepare_close_dataframe()
+	stat = Stat()
 	print('Starting event loop')
 	while True:
 		
