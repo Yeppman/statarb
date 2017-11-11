@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+
 import numpy as np
 import statsmodels.tsa.api as smt
 import statsmodels.api as sm
@@ -8,7 +8,7 @@ from pyfinance.ols import PandasRollingOLS
 
 class Stat:
 	def __init__(self):
-		pass
+		self.test=None
 
 	
 	def get_spread(self, close_df):
