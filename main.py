@@ -94,7 +94,7 @@ def run():
 					print('Stop loss buying back ',pair1,' ',pair1_p,' amount ',bfxTrade.short_amount, ' selling ',pair2,' ', pair2_p,' amount ',bfxTrade.long_amount)
 					bfxTrade.backtest_trade(pair1,pair1_p, bfxTrade.short_amount, 'buy', 'short')
 					bfxTrade.backtest_trade(pair2,pair2_p, bfxTrade.long_amount, 'sell', 'long')
-					save_data(pair2,pair2_p, bfxTrade.long_amount,'short', pair1, pair1_p, bfxTrade.short_amount,'long', bfxTrade.init_amount, pl)
+					save_data(pair1,pair1_p, bfxTrade.short_amount,'short', pair2, pair2_p, bfxTrade.long_amount,'long', bfxTrade.init_amount, pl)
 
 					print('Result amount', bfxTrade.init_amount)
 					print('P/L ', pl*100,' %')
@@ -106,6 +106,8 @@ def run():
 					print('buying back ',pair2,' ',pair2_p,' amount ',bfxTrade.short_amount, ' selling ',pair1,' ', pair1_p,' amount ',bfxTrade.long_amount)
 					bfxTrade.backtest_trade(pair2,pair2_p, bfxTrade.short_amount, 'buy', 'short')
 					bfxTrade.backtest_trade(pair1,pair1_p, bfxTrade.long_amount, 'sell', 'long')
+					save_data(pair2,pair2_p, bfxTrade.short_amount,'short', pair1, pair1_p, bfxTrade.long_amount,'long', bfxTrade.init_amount, pl)
+
 					print('Result amount', bfxTrade.init_amount)
 					print('P/L ', pl*100,' %')
 					bfxTrade.opened_position = False
@@ -113,6 +115,8 @@ def run():
 					print('Stop loss buying back ',pair2,' ',pair2_p,' amount ',bfxTrade.short_amount, ' selling ',pair1,' ', pair1_p,' amount ',bfxTrade.long_amount)
 					bfxTrade.backtest_trade(pair2,pair2_p, bfxTrade.short_amount, 'buy', 'short')
 					bfxTrade.backtest_trade(pair1,pair1_p, bfxTrade.long_amount, 'sell', 'long')
+					save_data(pair2,pair2_p, bfxTrade.short_amount,'short', pair1, pair1_p, bfxTrade.long_amount,'long', bfxTrade.init_amount, pl)
+
 					print('Result amount', bfxTrade.init_amount)
 					print('P/L ', pl*100,' %')
 					bfxTrade.opened_position = False
