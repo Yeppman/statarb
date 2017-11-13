@@ -6,3 +6,4 @@ matplotlib==1.4.3
 python-socketio==1.8.1
 eventlet==0.21.0
 Flask==0.12.2
+pymongo==3.5.1

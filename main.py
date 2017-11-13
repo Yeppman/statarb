@@ -1,4 +1,4 @@
-
+from pymongo import MongoClient
 import os
 import numpy as np
 from BitfinexTrade import BitfinexTrade
@@ -15,7 +15,10 @@ from flask import Flask, jsonify, render_template
 sio = socketio.Server()
 app = Flask(__name__)
 
-
+#connection to remote db
+client = MongoClient('mongodb://statarb:P%40ssw0rd@ds259305.mlab.com:59305/statarb')
+db = client.statarb
+db_data = db.data
 
 
 
@@ -31,9 +34,11 @@ def run():
 	pos = Position()
 	bfxTrade = BitfinexTrade()
 	pairs = bfxTrade.pairs
+	print('Trading ', pairs)
+	print('Preparing prices')
 	bfxTrade.prepare_close_dataframe()
 	stat = Stat()
-	print('Trading ', pairs)
+	
 	print('Starting event loop')
 	while True:
 		
@@ -48,23 +53,28 @@ def run():
 		pair2= pairs.split('-')[1]
 		pair1_p =bfxTrade.close_df[pair1].iat[-1]
 		pair2_p =bfxTrade.close_df[pair2].iat[-1]
-		
+		print('zscore ',zscore, ' ',pair1,' price ',pair1_p, ' ',pair2,' price ',pair2_p)
 		if not bfxTrade.opened_position:
 			if zscore >3:
-				print('short ',pair1,' ',pair1_p,' amount ',pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p),' long ',pair2,' ',pair2_p,' amount ',pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p))
-				bfxTrade.backtest_trade(pair1,pair1_p, pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p), 'sell', 'short')
-				bfxTrade.backtest_trade(pair2,pair2_p, pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p), 'buy', 'long')
-					
+				amount1= pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p)
+				amount2=pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p)
+				print('short ',pair1,' ',pair1_p,' amount ',amount1,' long ',pair2,' ',pair2_p,' amount ', amount2)
+				bfxTrade.backtest_trade(pair1,pair1_p, amount1, 'sell', 'short')
+				bfxTrade.backtest_trade(pair2,pair2_p, amount2, 'buy', 'long')
+				save_data(pair1,pair1_p, amount1,'short', pair2, pair2_p, amount2,'long', bfxTrade.init_amount)
 
 				bfxTrade.opened_position = True
 				bfxTrade.long =pair2
 				bfxTrade.short =pair1
 
 			elif zscore <-3:
-				print('short ',pair2,' ',pair2_p,' amount ',pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p),' long ',pair1,' ',pair1_p,' amount ',pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p))
-				bfxTrade.backtest_trade(pair2,pair2_p, pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p), 'sell', 'short')
-				bfxTrade.backtest_trade(pair1,pair1_p, pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p), 'buy', 'long')
-				
+				amount1= pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p)
+				amount2=pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p)
+				print('short ',pair2,' ',pair2_p,' amount ',amount2,' long ',pair1,' ',pair1_p,' amount ',amount1)
+				bfxTrade.backtest_trade(pair2,pair2_p, amount2, 'sell', 'short')
+				bfxTrade.backtest_trade(pair1,pair1_p, amount1, 'buy', 'long')
+				save_data(pair2,pair2_p, amount2,'short', pair1, pair1_p, amount1,'long', bfxTrade.init_amount)
+
 				bfxTrade.opened_position = True
 				bfxTrade.long =pair1
 				bfxTrade.short =pair2
@@ -75,6 +85,8 @@ def run():
 					print('buying back ',pair1,' ',pair1_p,' amount ',bfxTrade.short_amount, ' selling ',pair2,' ', pair2_p,' amount ',bfxTrade.long_amount)
 					bfxTrade.backtest_trade(pair1,pair1_p, bfxTrade.short_amount, 'buy', 'short')
 					bfxTrade.backtest_trade(pair2,pair2_p, bfxTrade.long_amount, 'sell', 'long')
+					save_data(pair1,pair1_p, bfxTrade.short_amount,'short', pair2, pair2_p, bfxTrade.long_amount,'long', bfxTrade.init_amount, pl)
+
 					print('Result amount', bfxTrade.init_amount)
 					print('P/L ', pl*100,' %')
 					bfxTrade.opened_position = False
@@ -82,6 +94,8 @@ def run():
 					print('Stop loss buying back ',pair1,' ',pair1_p,' amount ',bfxTrade.short_amount, ' selling ',pair2,' ', pair2_p,' amount ',bfxTrade.long_amount)
 					bfxTrade.backtest_trade(pair1,pair1_p, bfxTrade.short_amount, 'buy', 'short')
 					bfxTrade.backtest_trade(pair2,pair2_p, bfxTrade.long_amount, 'sell', 'long')
+					save_data(pair2,pair2_p, bfxTrade.long_amount,'short', pair1, pair1_p, bfxTrade.short_amount,'long', bfxTrade.init_amount, pl)
+
 					print('Result amount', bfxTrade.init_amount)
 					print('P/L ', pl*100,' %')
 					bfxTrade.opened_position = False
@@ -104,6 +118,18 @@ def run():
 					bfxTrade.opened_position = False
 		time.sleep(1800)
 
+def save_data(pair1, price1, amount1, type1, pair2, price2, amount2, type2, res, pl=0):
+	doc = {'pair1': pair1,
+			'type1': type1,
+			'price1':price1,
+			'amount1': amount1,
+			'pair2': pair2,
+			'type2': type2,
+			'price2': price2,
+			'amount2': amount2,
+			'result_amount':res,
+			'pl':pl}
+	db_data.insert_one(doc).inserted_id
 threading.Thread(target=run, args=()).start()
 
 port = os.getenv('PORT', '5000')
@@ -111,5 +137,4 @@ if __name__ == "__main__":
 	app = socketio.Middleware(sio, app)
 	eventlet.wsgi.server(eventlet.listen(('', int(port))), app)
 	
-
 

@@ -5,7 +5,7 @@ import time
 
 class BitfinexTrade:
 	def __init__(self):
-		self.pairs = 'LTCUSD-ETHUSD'
+		self.pairs = 'ETHUSD-DSHUSD'
 		self.close_df=None
 		self.init_amount = 1000
 		self.reserve={}
