@@ -63,6 +63,10 @@ class BitfinexTrade:
 			curr_time = round(time.time())*1000
 			row=[res[0][7],res[1][7]]
 			self.close_df.loc[curr_time] = row
+		else:
+			print('Error occured')
+			time.sleep(2)
+			self.get_tickers()
 
 	def backtest_trade(self, pair,price, amount, side, type):
 		if side == 'buy':
