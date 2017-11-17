@@ -55,7 +55,7 @@ def run():
 		pair2_p =bfxTrade.close_df[pair2].iat[-1]
 		print('zscore ',zscore, ' ',pair1,' price ',pair1_p, ' ',pair2,' price ',pair2_p)
 		if not bfxTrade.opened_position:
-			if zscore >3:
+			if zscore >2:
 				amount1= pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p)
 				amount2=pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p)
 				print('short ',pair1,' ',pair1_p,' amount ',amount1,' long ',pair2,' ',pair2_p,' amount ', amount2)
@@ -67,7 +67,7 @@ def run():
 				bfxTrade.long =pair2
 				bfxTrade.short =pair1
 
-			elif zscore <-3:
+			elif zscore <-2:
 				amount1= pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair1_p)
 				amount2=pos.get_position_size(risk.account_risk, risk.pl_risk, bfxTrade.init_amount, pair2_p)
 				print('short ',pair2,' ',pair2_p,' amount ',amount2,' long ',pair1,' ',pair1_p,' amount ',amount1)
@@ -81,7 +81,7 @@ def run():
 		else:
 			if bfxTrade.long == pair2 and bfxTrade.short == pair1:
 				pl = risk.get_pl(bfxTrade.long_price, pair2_p, 'long')+risk.get_pl(bfxTrade.short_price, pair1_p, 'short')
-				if pl >0.0 and zscore< 0.2:
+				if pl >0.0 and zscore< 0:
 					print('buying back ',pair1,' ',pair1_p,' amount ',bfxTrade.short_amount, ' selling ',pair2,' ', pair2_p,' amount ',bfxTrade.long_amount)
 					bfxTrade.backtest_trade(pair1,pair1_p, bfxTrade.short_amount, 'buy', 'short')
 					bfxTrade.backtest_trade(pair2,pair2_p, bfxTrade.long_amount, 'sell', 'long')
@@ -102,7 +102,7 @@ def run():
 					
 			elif bfxTrade.long == pair1 and bfxTrade.short == pair2:
 				pl = risk.get_pl(bfxTrade.long_price, pair1_p, 'long')+risk.get_pl(bfxTrade.short_price, pair2_p, 'short')
-				if pl >0.0 and zscore>-0.2:
+				if pl >0.0 and zscore>0:
 					print('buying back ',pair2,' ',pair2_p,' amount ',bfxTrade.short_amount, ' selling ',pair1,' ', pair1_p,' amount ',bfxTrade.long_amount)
 					bfxTrade.backtest_trade(pair2,pair2_p, bfxTrade.short_amount, 'buy', 'short')
 					bfxTrade.backtest_trade(pair1,pair1_p, bfxTrade.long_amount, 'sell', 'long')
