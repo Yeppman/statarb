@@ -76,11 +76,11 @@ class BitfinexTrade:
 				self.long_price = price
 
 			else:
-				self.init_amount=self.init_amount+0.996*(2*self.reserve[pair]-amount*price)
+				self.init_amount=self.init_amount+0.998*(2*self.reserve[pair]-amount*price)
 			return
 		else:
 			if type == 'long':
-				self.init_amount = self.init_amount+0.996*amount*price
+				self.init_amount = self.init_amount+0.998*amount*price
 			else:
 				self.short_amount = amount
 				self.reserve[pair] = self.short_amount*price

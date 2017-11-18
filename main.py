@@ -123,7 +123,8 @@ def run():
 		time.sleep(1800)
 
 def save_data(pair1, price1, amount1, type1, pair2, price2, amount2, type2, res, pl=0):
-	doc = {'pair1': pair1,
+	doc = {'time': round(time.time()),
+			'pair1': pair1,
 			'type1': type1,
 			'price1':price1,
 			'amount1': amount1,
