@@ -5,7 +5,7 @@ import time
 
 class BitfinexTrade:
 	def __init__(self):
-		self.pairs = 'ETHUSD-DSHUSD'
+		self.pairs = 'LTCUSD-XMRUSD'
 		self.close_df=None
 		self.init_amount = 1000
 		self.reserve={}
@@ -72,11 +72,11 @@ class BitfinexTrade:
 		if side == 'buy':
 			if type == 'long':
 				self.long_amount =amount
-				self.init_amount = self.init_amount-self.long_amount*price
+				self.init_amount = self.init_amount-1.002*self.long_amount*price
 				self.long_price = price
 
 			else:
-				self.init_amount=self.init_amount+0.998*(2*self.reserve[pair]-amount*price)
+				self.init_amount=self.init_amount+(2*self.reserve[pair]-1.002*amount*price)
 			return
 		else:
 			if type == 'long':
@@ -84,7 +84,7 @@ class BitfinexTrade:
 			else:
 				self.short_amount = amount
 				self.reserve[pair] = self.short_amount*price
-				self.init_amount=self.init_amount-self.reserve[pair]
+				self.init_amount=self.init_amount-1.002*self.reserve[pair]
 				self.short_price = price
 			return
 

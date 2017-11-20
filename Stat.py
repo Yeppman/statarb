@@ -17,18 +17,16 @@ class Stat:
 		pair1 = list(close_df)[0]
 		pair2 = list(close_df)[1]
 		pairs = pair1+'-'+pair2
-		rolling_ols = PandasRollingOLS(y=close_df[pair1], x=close_df[pair2], window=20)
+		rolling_ols = PandasRollingOLS(y=close_df[pair1], x=close_df[pair2], window=48)
 		spread[pairs] =close_df[pair1] - rolling_ols.beta['feature1'] * close_df[pair2]
 		spread.dropna(inplace=True)
 		return spread
 
 	def get_zscore(self, spread):
 		
-		std_20 = spread.rolling(center=False,window=20).std()
+		std_48 = spread.rolling(center=False,window=48).std()
 		spread_mavg1 = spread.rolling(center=False,window=1).mean()
-		spread_mavg20 = spread.rolling(center=False,window=20).mean()
-		df = (spread_mavg1 - spread_mavg20)/std_20
+		spread_mavg48 = spread.rolling(center=False,window=48).mean()
+		df = (spread_mavg1 - spread_mavg48)/std_48
 		df.dropna(inplace = True)
-
-
 		return df
